@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>知乎登录粒子系统</title>
+    <style>
+    *{
+        margin: 0;
+        padding: 0;
+    }
+    html, body {
+        height: 100%;
+    }
+    #canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: #EFEFEF;
+    }
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script>
+// 粒子系统 60颗
+// draw update line
+// 过程式编程
+// 结构 对象 属性和行为 Class
+// constructor es6 构造类的方式
+/*  Circle 类
+ *  提供粒子数据模型
+ *  drawCircle
+ *  move 行为方法
+ *  cad 7-26
+ *  封装
+ */
+class Circle {
+    constructor(x, y) {
+        console.log('构造器');
+        this.x = x;
+        this.y = y;
+        this.r = Math.ceil(Math.random() * 10); 
+        this._mx = Math.random(); //x轴上的偏移量
+        this._my = Math.random(); //y轴上的偏移量
+    }
+    drawCircle (ctx) {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r, 0, 360)
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(255, 255, 0,.3)';
+        ctx.fill();
+    }
+    // es6 对象字面量的缩写形式
+    move(w, h) {
+        this._mx = (this.x < w && this.x > 0)?this._mx:(-this._mx);
+        this._my = (this.y < h && this.y > 0)?this._my:(-this._my);
+        this.x += this._mx/2;
+        this.y += this._my/2;
+    }
+    drawLine(ctx, _circle) {
+        let dx = this.x - _circle.x;
+        let dy = this.y - _circle.y;
+        let d = Math.sqrt(dx*dx + dy*dy);
+        if(d <150) {
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(_circle.x, _circle.y);
+            ctx.closePath();
+            ctx.strokeStyle = 'rgba(204, 204, 204, .3)';
+            ctx.stroke();
+        } 
+    }
+}
+let canvas = document.getElementById('canvas');
+    context = canvas.getContext('2d');
+    circles =[];
+    w = canvas.width;
+    h = canvas.height;
+function init() { 
+    for(var i = 0; i < 60; i++){
+        circles.push(new Circle(Math.random() * w , Math.random() * h));
+        draw(context);
+    }
+}
+function draw() {
+    // circle 对象 draw
+    context.clearRect(0,0,w,h);
+    for(var i = 0; i < circles.length; i++){
+        circles[i].move(w, h);
+        circles[i].drawCircle(context);
+        // 更新 属于circle[i]的行为
+        // 画线
+        for(j = i + 1; j < circles.length; j++){
+            circles[i].drawLine(context, circles[j]);
+        }
+    }
+    // 根正苗红的canvas 帧刷新
+    requestAnimationFrame(draw);
+    // setInterval(draw, 24);
+}
+window.addEventListener('load', function() {
+    init();
+}, false);
+</script>
+</body>
+</html>
